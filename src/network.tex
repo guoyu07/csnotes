@@ -68,7 +68,7 @@ Hub/Switch可以通过Auto-negotiation（即N-Way）和Auto MDI/MDIX技术来向
 
 当两个或多个网络通过路由器连接在一起时，它们就变成了互联网（internet），其中最著名的互联网就是因特网（Internet）。
 
-路由器（Router）是发送数据包（消息），并使其在互联网中传输的连接设备。
+路由器（Router）是发送数据包（packet，消息），并使其在互联网中传输的连接设备。
 
 \begin{compactitem}
 \item 网络本身可以是一组连接在一起的通信设备（例如计算机和打印机）。
@@ -78,6 +78,46 @@ Hub/Switch可以通过Auto-negotiation（即N-Way）和Auto MDI/MDIX技术来向
 
 路由器选择协议（例如RIP、OSPF和BGP）向Internet上的所有路由器发送自己的信息，更新它们关于路由的信息，因此路由选择协议可以更新路由器中的路由表。
 
+\chapter{OSI}
+
+
+\section{Overview}
+
+网络传输是分层架构的，每个分层（layer）可以是独立的，而且每个分层也可以有自己的标准，这样用户就可以在不同的分层中根据相应的标准来设计。
+
+OSI（Open System Interconnection）七层协议为网络分层提供了一个参考模型。
+
+\begin{longtable}{|m{100pt}|m{300pt}|}
+\multicolumn{2}{r}{}
+\tabularnewline\hline
+分层 & 说明
+\endhead
+
+\caption{OSI参考模型}\\
+\hline
+\endfirsthead
+
+\multicolumn{2}{r}{}
+\endfoot
+
+\endlastfoot
+
+\hline
+Physical Layer & 网络硬件标准（网线、无线、设备、电压以及规则等）\\
+\hline
+Data Link Layer & Frame的数据格式、错误控制、流量控制、错误校验以及传输方式等\\
+\hline
+Network Layer & 计算机之间建立、中止、维持连接以及数据包的传输路径选择，而且可以涵盖实体层和数据链路层。\\
+\hline
+Transport Layer & 发送端与接收端的连接技术（例如TCP），以及数据包的格式、传输、控制、检测和重新发送等。\\
+\hline
+Session Layer & 两个地址之间的连接信道的连接和挂断，以及应用程序之间的会话控制、网络管理、签到签退等。\newline 如果传输层判断数据包是否正确到达目标，那么会话层则是确定网络服务建立连接的确认（例如3次握手）\\
+\hline
+Presentation Layer &将本地应用的数据的格式转换（或者重新编码）为标准格式来发送给更具体的层进行处理。\\
+\hline
+Application Layer & 使用程序（例如浏览器、数据库系统、Email系统等）来定义文件的读取、复制、打开和关闭等。
+\hline
+\end{longtable}
 
 
 \chapter{Protocol}
@@ -180,7 +220,7 @@ TCP/IP&网络层 & 3 & 互联网层 & 原始的TCP/IP\\ \cline{2-4}
 
 \section{IP}
 
-在TCP/IP协议族中，网络层的主协议IP（因特网协议）用于从源计算机到目的计算机的数据包发送。
+在TCP/IP协议族中，网络层的主协议IP（因特网协议）用于从源计算机到目的计算机的数据包发送，可以将IP地址想象为“门牌号码”。
 
 
 
@@ -207,6 +247,16 @@ IP地址使用点分十进制记法表示的32位的地址标识，32位的地�
 \item IGMP（Internet小组管理协议）可以用来增加IP的多播能力。
 \item ARP（地址解析协议）和RARP（反向地址解析协议）
 \end{compactitem}
+
+事实上，Internet使用IP进行连接，但是硬件数据使用帧来作为最小单元进行传输，因此需要通过ARP（Address Resolution Protocol）来解析MAC和IP地址的对应关系。例如，当主机在查找目标IP时就会对整个局域网进行广播数据包（boardcast）的发送，这样就可以要求局域网内的所有主机回复它们的IP和MAC。
+
+\begin{compactitem}
+\item 目标主机可以响应广播数据包，响应相关的MAC信息，以及更新主机内存中的ARP table。
+\item 非目标主机主动忽略广播数据包。
+\end{compactitem}
+
+ARP table是动态的信息，随时随着网段中的计算机的变化而改变，不过也可以设置静态的ARP对应。
+
 
 在网络拥堵时，路由器丢失数据包后可以由ICMP发送一个数据包给源计算机来警告其拥堵，而且ICMP还可以用来检查Internet节点的状态。
 
@@ -261,7 +311,7 @@ Internet是网络（LAN、WAN和MAN）的集合，从源到目的地的数据包
 \end{tabular}
 \end{table}
 
-帧的标准容量最大可达1500Bytes，操作系统将需要传输的数据拆解为多个1500Bytes的帧来进行发送，并且在目标主机接收到帧后再重新组合为原始数据，不过现在的Gigabit Ethernet已经开始支持更大的帧架构Jumbo Frame（通常为9000Bytes）。
+帧的标准容量最大可达1500Bytes，IP数据包的最大可以达到65535Bytes，因此操作系统需要将需要传输的数据拆解为多个1500Bytes的帧来进行发送，并且在目标主机接收到帧后再重新组合为原始数据，不过现在的Gigabit Ethernet已经开始支持更大的帧架构Jumbo Frame（通常为9000Bytes）。
 
 在MAC帧中的目的地址和来源地址实际上是硬件地址，长度为6Bytes，范围为00:00:00:00:00:00～FF:FF:FF:FF:FF:FF，MAC帧仅在局域网内生效，不能跨路由器进行传输，在跨网段传输时需要路由器来修改来源地址和目的地址，。
 
